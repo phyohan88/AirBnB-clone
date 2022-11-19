@@ -26,8 +26,8 @@ const setTokenCookie = (res, user) => {
 
   return token;
 };
-
-const restoreUser = (req, res, next) => {
+//below is where we persist the user login info
+const restoreUser = (req, res, next) => { 
   // token parsed from cookies
   const { token } = req.cookies;
   req.user = null;
