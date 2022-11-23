@@ -1,6 +1,6 @@
 'use strict';
 
-const { sequelize } = require('../models');
+// const { sequelize } = require('../models');
 
 
 let options = {};
