@@ -7,6 +7,8 @@ const { User } = require('../../db/models');
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 
+const router = express.Router();
+
 const validateSignup = [
   check('email')
     .exists({ checkFalsy: true })
@@ -27,7 +29,6 @@ const validateSignup = [
   handleValidationErrors
 ];
 
-const router = express.Router();
 
 // Sign up
 // router.post(
