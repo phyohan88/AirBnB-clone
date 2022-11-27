@@ -38,6 +38,21 @@ router.post(
     
     const user = await User.signup({ email, firstName, lastName, username, password });
 
+    // const existingUser = await User.findOne({
+    //   where: { email: req.body.email}
+    // })
+    // console.log(existingUser, 'existingUser')
+    // if (existingUser.email === user.email){
+    //   return res.status(403).json(
+    //     {
+    //       "message": "User already exists",
+    //       "statusCode": 403,
+    //       "errors": {
+    //         "email": "User with that email already exists"
+    //       }
+    //     }
+    //   )
+    // }
     await setTokenCookie(res, user);
 
     return res.json({

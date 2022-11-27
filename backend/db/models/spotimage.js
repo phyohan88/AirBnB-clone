@@ -18,10 +18,10 @@ module.exports = (sequelize, DataTypes) => {
     spotId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: 'Spot',
-        key: 'id'
-      }
+      // references: {
+      //   model: 'Spot',
+      //   key: 'id'
+      // }
     },
     url: {
       type: DataTypes.STRING,
@@ -34,9 +34,9 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'SpotImage',
-    defaultScope: {
-      exclude: ['spotId', 'createdAt', 'updatedAt']
-    }
+    // defaultScope: {
+    //   exclude: ['spotId', 'createdAt', 'updatedAt']
+    // }
   });
   return SpotImage;
 };

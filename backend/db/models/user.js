@@ -51,13 +51,13 @@ module.exports = (sequelize, DataTypes) => {
       //   foreignKey: 'userId'
       // }
       // User.belongsToMany(models.Spot, associateObj)
-      User.belongsToMany(models.Spot, { through: models.Booking,
-        otherKey: 'spotId',
-        foreignKey: 'userId'
-      });
+      // User.belongsToMany(models.Spot, { through: models.Booking,
+      //   otherKey: 'spotId',
+      //   foreignKey: 'userId'
+      // });
       User.hasMany(models.Review, { foreignKey: 'userId' });
       User.hasMany(models.Spot, { foreignKey: 'ownerId' });
-      // User.belongsToMany(models.Spot, { through: models.Review });
+      User.hasMany(models.Booking, { foreignKey: 'userId' });//new one
     }
   };
 
