@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { Spot, SpotImage, Booking, Review, User, ReviewImage } = require('../../db/models');
+const { Spot, SpotImage, Booking, Review, User, ReviewImage, sequelize } = require('../../db/models');
 
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
@@ -14,39 +14,51 @@ router.get('/', async (req, res) => {
     // const { ownerId, address, city, state, country, lat, lng, name, description, price, avgRating, previewImage } = req.body;
     const {spotId} = req.params
     const spots = await Spot.findAll({
-        attributes: [
-            'id',
-            'ownerId',
-            'address',
-            'city',
-            'state',
-            'country',
-            'lat',
-            'lng',
-            'name',
-            'description',
-            'price',
-            'createdAt',
-            'updatedAt'
-        ],
-        // include: {model: SpotImage, attributes: ['url']}
+        
     })
-    // console.log(spots, '===========spot========')
     let emptyArr = [];
-    for (let spot of spots) {
-        spot = spot.toJSON()
-        const previewImage = await SpotImage.findOne({
+        for (let spot of spots) {
+            spot = spot.toJSON()
+            emptyArr.push(spot)
+        }
+        // console.log(previewImage.url, 'previewImage')
+        // console.log(spot['previewImage'])
+        // console.log(emptyArr, 'empty array ====')
+
+        for(let spot of emptyArr){
+            const previewImage = await SpotImage.findOne({
+                    where: {spotId: spot.id},
+                    attributes: [
+                        'url'
+                    ]
+                })
+        if(previewImage){
+
+            spot['previewImage'] = previewImage.url
+        }
+        
+        const starsForReview = await Review.findAll({ raw: true,
             where: {spotId: spot.id},
-            attributes: [
-                'url'
-            ]
+            attributes: {
+                include: [
+                    [
+                        sequelize.fn("AVG", sequelize.col("stars")),
+                        "avgRating"
+                    ]
+                ]
+            }
         })
-        // spots.previewImage = previewImage.url
+            spot['avgRating'] = starsForReview[0].avgRating
 
-        spot['previewImage'] = previewImage.url
-
-        emptyArr.push(spot)
+        // console.log(starsForReview[0], 'avg rating =====')
+        // console.log(starsForReview, 'star for review')
+        // console.log(previewImage, 'previewImage')
+        // console.log(spot['previewImage'])
     }
+    
+
+    // console.log(spots, '===========spot========')
+
     return res.json({Spot: emptyArr})
     // return res.json({Spots: spots, 'previewImage': SpotImage.url})
 });
@@ -58,16 +70,54 @@ router.get('/current', requireAuth, async (req, res) => {
     // const currentUser = await Session.findOne('userId')
     const {id} = req.user;
 
-    const spotForCurrentUser = await Spot.findAll({where: {ownerId: id}})
+    let spotForCurrentUser = await Spot.findOne(
+        {where: {ownerId: id},
+            include: [{model: Review}]
+        }
+    )
+    let sameSpot = await Spot.findOne(
+        {where: {ownerId: id}})
 
-    return res.json(spotForCurrentUser)
+        sameSpot = sameSpot.toJSON()
+
+        // console.log(spotForCurrentUser.toJSON().Reviews[0].id, 'spottttt currrent user')
+        const reviewIdForImage = spotForCurrentUser.toJSON().Reviews[0].id
+        const reviewImage = await ReviewImage.findOne({
+            where: {reviewId: reviewIdForImage}
+        })
+        // console.log(reviewImage, 'review image ======')
+        // const reviewImage = await ReviewImage.findOne({where: {
+        //     reviewId: 
+        // }})
+        const reviews = spotForCurrentUser.Reviews
+        let starSum = 0
+        let starLength = 0
+        for(let review of reviews){
+            starSum += review.stars
+            starLength += 1
+        }
+        const avgStars = starSum / starLength
+        sameSpot.avgStarRating = avgStars
+        if(reviewImage){
+
+            sameSpot.previewImage = reviewImage.url
+        } else {
+            sameSpot.previewImage = null
+        }
+
+    return res.json(sameSpot)
 })
 
 //Get Details of a Spot by Id
 router.get('/:spotId', async (req, res) => {
     const spotId = req.params.spotId
     
-    const thisSpot = await Spot.findByPk(spotId)
+
+    const thisSpot = await Spot.findByPk(spotId, 
+        {
+            include: {model: SpotImage}
+        })
+    // console.log(thisSpot, 'this spot ======')
     if (!thisSpot){
         return res.status(404).json(
             {
@@ -76,10 +126,27 @@ router.get('/:spotId', async (req, res) => {
             })
     }
 
-    const spots = await Spot.findByPk(spotId)
-    
+    let spot = await Spot.findByPk(spotId, 
+        {
+            include: [{model: SpotImage}, {model: User, attributes: ['id', 'firstName', 'lastName']}], 
+            
+        })
+        spot = spot.toJSON()
+        spot.Owner = spot.User
+        delete spot.User
 
-    return res.json(spots)
+    const reviews = await Review.findAll({where: {spotId: spotId}})
+    let sum = 0   
+        for (let review of reviews){
+            sum += review.stars
+        }
+
+    let avg = sum /reviews.length
+    // console.log(reviews.length, 'reviewwwwwwwws length')
+        spot.numReviews = reviews.length
+        spot.avgStarRating = avg
+    // await spot.save()
+    return res.json(spot)
 })
 
 //Edit a Spot
@@ -198,7 +265,8 @@ router.post('/:spotId/bookings', async (req, res) => {
                 }
             })
     }
-    const spotId = req.params.spotId
+    const spotId = +req.params.spotId
+    console.log(typeof spotId, ':typeof =================')
     const {id} = req.user
 
     const bookingQuery = await Booking.findOne({ spotId })
@@ -214,7 +282,7 @@ router.post('/:spotId/bookings', async (req, res) => {
     //         })
     // }
 
-    const bookingForSpotId = await Booking.create({ spotId, userId: id, startDate, endDate })
+    const bookingForSpotId = await Booking.create({ spotId: spotId, userId: id, startDate, endDate })
 
     return res.json(bookingForSpotId)
 })
@@ -321,13 +389,13 @@ router.post('/:spotId/reviews', requireAuth, async (req, res) => {
         }
     })
 
-    if(existingReview){
-        return res.status(403).json(
-            {
-                "message": "User already has a review for this spot",
-                "statusCode": 403
-            })
-    }
+    // if(existingReview){
+    //     return res.status(403).json(
+    //         {
+    //             "message": "User already has a review for this spot",
+    //             "statusCode": 403
+    //         })
+    // }
 
     console.log(errorReviews, 'heloooooooooooo!!!')
     if(!errorReviews){
@@ -346,6 +414,23 @@ router.post('/:spotId/reviews', requireAuth, async (req, res) => {
 
 })
 
-    
+// Delete a Spot
+router.delete('/:spotId', requireAuth, async (req, res) => {
+    const deleteSpot = await Spot.findOne({where: {id: req.params.spotId}})
+    console.log(deleteSpot, 'delete spot =====')
+    if(!deleteSpot){
+        return res.status(404).json(
+            {
+                "message": "Spot couldn't be found",
+                "statusCode": 404
+            }
+        )
+    }
+    deleteSpot.destroy();
+    return res.json({
+        "message": "Successfully deleted",
+        "statusCode": 200
+    })
+})    
 
 module.exports = router;

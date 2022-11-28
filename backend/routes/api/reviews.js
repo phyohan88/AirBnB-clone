@@ -147,13 +147,27 @@ router.post('/:reviewId/images', async (req, res) => {
     return res.json({'id': addImageReview.id, 'url': addImageReview.url})
 })
 
-//Delete a Review
-// router.delete('/:reviewId', requireAuth, async (req, res) => {
-//     const deleteReview = await Review.findOne({where: {id: req.params.reviewId}})
+// Delete a Review
+router.delete('/:reviewId', requireAuth, async (req, res) => {
+    const deleteReview = await Review.findOne({where: {id: req.params.reviewId}})
 
-//     console.log(deleteReview, 'delete review')
-//     await deleteReview.destroy();
-// })
+    if(!deleteReview){
+        return res.status(404).json(
+            {
+                "message": "Review couldn't be found",
+                "statusCode": 404
+            }
+        )
+    }
+    console.log(deleteReview, 'delete review')
+    deleteReview.destroy();
+    return res.json(
+        {
+            "message": "Successfully deleted",
+            "statusCode": 200
+        }
+    )
+})
 
 
 module.exports = router;

@@ -18,10 +18,8 @@ module.exports = (sequelize, DataTypes) => {
     spotId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      // references: {
-      //   model: 'Spot',
-      //   key: 'id'
-      // }
+      // onDelete: 'CASCADE',
+      // hooks: true
     },
     url: {
       type: DataTypes.STRING,

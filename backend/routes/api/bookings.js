@@ -22,7 +22,7 @@ router.get('/current', requireAuth, async (req, res) => {
 //Edit a Booking
 router.put('/:bookingId', requireAuth, async (req, res) => {
     const {bookingId} = req.params
-    console.log(bookingId, 'BOOKING ID =======')
+    // console.log(bookingId, 'BOOKING ID =======')
     const editBooking = await Booking.findByPk(bookingId)
     if(!editBooking){
         return res.status(404).json(
@@ -34,6 +34,7 @@ router.put('/:bookingId', requireAuth, async (req, res) => {
     }
 
     const {startDate, endDate} = req.body;
+    // console.log(typeof endDate, 'this is end date')
     if(endDate < startDate){
         return res.status(400).json(
             {
@@ -45,6 +46,28 @@ router.put('/:bookingId', requireAuth, async (req, res) => {
             }
         )
     }
+    if (editBooking.endDate < endDate){
+        console.log(editBooking.endDate, 'editing end date ====')
+        console.log(endDate, ' end date')
+        return res.status(403).json(
+            {
+                "message": "Past bookings can't be modified",
+                "statusCode": 403
+            })
+    }
+    // const currentDate = new Date()
+    // const getCurrentTime = currentDate.getTime()
+    // console.log(currentDate.getHours(), 'this is hours =====')
+
+    // const end = `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()}`
+
+    // if()
+
+    // console.log(end, 'endddddd======')
+    
+    // console.log(getCurrentTime, 'this is current time')
+   
+    // console.log(currentDate, 'today date ==========')
 
     editBooking.update({
         spotId: req.spotId,
@@ -55,12 +78,25 @@ router.put('/:bookingId', requireAuth, async (req, res) => {
     return res.json(editBooking)
 })
 
-//Delete a Spot
-// router.delete('/:spotId', requireAuth, async (req, res) => {
-//     const deleteSpot = await Spot.findOne({where: {id: req.params.spotId}})
+//Delete a Booking
+router.delete('/:bookingId', requireAuth, async (req, res) => {
+    const deleteBooking = await Booking.findOne({where: {id: req.params.bookingId}})
 
-//     await deleteSpot.destroy();
-// })
+    if(!deleteBooking){
+        return res.status(404).json(
+            {
+                "message": "Booking couldn't be found",
+                "statusCode": 404
+            }
+        )
+    }
+    deleteBooking.destroy();
+    return res.json(
+        {
+            "message": "Successfully deleted",
+            "statusCode": 200
+        })
+})
 
 
 module.exports = router;
