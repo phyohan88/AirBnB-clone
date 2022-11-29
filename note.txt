@@ -1,3 +1,27 @@
 npm init -y
 
 npm install cookie-parser cors csurf dotenv express express-async-errors helmet jsonwebtoken morgan per-env sequelize@6 sequelize-cli@6 pg
+
+npx sequelize-cli model:generate --name Tree --attributes tree:string,location:string,heightFt:float,groundCircumferenceFt:float
+
+npx sequelize-cli model:generate --name Spot --attributes ownerId:integer,address:string,city:string,state:string,country:string,lat:decimal,lng:decimal,name:string,description:string,price:decimal
+
+npx dotenv sequelize db:migrate
+
+npx sequelize seed:generate --name demo-spot
+
+
+npx sequelize model:generate --name SpotImage --attributes spotId:integer,url:string,preview:boolean
+
+npx sequelize model:generate --name Booking --attributes spotId:integer,userId:integer,startDate:date,endDate:date
+
+
+npx sequelize model:generate --name Review --attributes spotId:integer,userId:integer,review:string,stars:integer
+
+npx sequelize model:generate --name ReviewImages --attributes reviewId:integer,url:string
+
+first route must be lazy loading
+
+if(req.user.id === Spot.userId) {
+    return res.status().json('error message here')
+}
