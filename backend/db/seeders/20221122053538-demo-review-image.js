@@ -5,6 +5,8 @@ if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;  // define your schema in options object
 }
 
+options.table = 'ReviewImages';
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up:async  (queryInterface, Sequelize) => {
@@ -52,7 +54,7 @@ module.exports = {
     // options.tableName = 'ReviewImage';
     const Op = Sequelize.Op;
     return queryInterface.bulkDelete(options, {
-      reviewId: { [Op.in]: [3, 4, 5, 6, 7]}
-    }, {});
+      // reviewId: { [Op.in]: [3, 4, 5, 6, 7]}
+    });
   }
 };

@@ -7,6 +7,8 @@ let options = {};
 if (process.env.NODE_ENV === 'production'){
   options.schema = process.env.SCHEMA;
 }
+options.tableName = 'Spots';
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
@@ -73,7 +75,7 @@ module.exports = {
     // options.tableName = 'Spots';
     const Op = Sequelize.Op;
     return queryInterface.bulkDelete(options, {
-      name: { [Op.in]: ['Silent Hill', 'Sand Valley', 'Cool Beach'] }
-    }, {});
+      // name: { [Op.in]: ['Silent Hill', 'Sand Valley', 'Cool Beach'] }
+    });
   }
 };
