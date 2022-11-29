@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { Booking } = require('../../db/models');
+const { Booking, Spot, SpotImage, User } = require('../../db/models');
 
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
@@ -13,10 +13,33 @@ const router = express.Router();
 router.get('/current', requireAuth, async (req, res) => {
     const {id} = req.user;
 
-
-    const currentUserBookings = await Booking.findAll({where: { userId: id}})
-
-    return res.json(currentUserBookings)
+    let emptyArr = [];
+    let currentUserBookings = await Booking.findAll({
+        where: { userId: id},
+        include: {
+            model: Spot,
+            attributes: ['id', 'ownerId', 'address', 'city', 'state','country', 'lat', 'lng', 'name', 'price'],
+            include: {model: SpotImage},
+            required: true
+        },
+    })
+    // console.log(currentUserBookings, ' current user bookings ====')
+    let newReturn = []
+    for(let booking of currentUserBookings){
+        booking = JSON.parse(JSON.stringify(booking))
+        // console.log(booking, 'booking ======')
+        // let spot = booking.Spot
+        let {Spot} = booking
+        let {SpotImages, ...spotinfo} = Spot
+        
+        let newSpot = {...spotinfo, previewImage: SpotImages[0].url}
+        // console.log(newSpot, 'new spot ======')
+        booking.Spot = newSpot
+        // console.log(booking, 'booking spot')
+        newReturn.push(booking)
+    } 
+      
+    return res.json({Bookings: newReturn})
 })
 
 //Edit a Booking
