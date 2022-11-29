@@ -26,10 +26,6 @@ module.exports = {
       url: "review3 url"
     },
     {
-      reviewId: 4,
-      url: "review4 url"
-    },
-    {
       reviewId: 5,
       url: "review5 url"
     },
@@ -37,10 +33,10 @@ module.exports = {
       reviewId: 6,
       url: "review6 url"
     },
-    {
-      reviewId: 7,
-      url: "review7 url"
-    },
+    // {
+    //   reviewId: 7,
+    //   url: "review7 url"
+    // },
    ])
   },
 
