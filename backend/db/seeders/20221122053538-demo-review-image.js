@@ -53,8 +53,7 @@ module.exports = {
      */
     // options.tableName = 'ReviewImage';
     const Op = Sequelize.Op;
-    return queryInterface.bulkDelete(options, {
-      // reviewId: { [Op.in]: [3, 4, 5, 6, 7]}
-    });
+    return queryInterface.bulkDelete(options, {});
+    // reviewId: { [Op.in]: [3, 4, 5, 6, 7]}
   }
 };
