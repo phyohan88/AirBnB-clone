@@ -26,11 +26,11 @@ module.exports = {
       url: "review3 url"
     },
     {
-      reviewId: 5,
+      reviewId: 1,
       url: "review5 url"
     },
     {
-      reviewId: 6,
+      reviewId: 2,
       url: "review6 url"
     },
     // {
