@@ -26,7 +26,7 @@ router.get('/current', requireAuth, async (req, res) => {
             'updatedAt'
         ]
     })
-    console.log(reviewForCurrentUser, 'review for current user')
+    // console.log(reviewForCurrentUser, 'review for current user')
     // reviewForCurrentUser.foro(async ele => {
     let emptyArr = [];
     for (let ele of reviewForCurrentUser){
@@ -74,20 +74,21 @@ router.get('/current', requireAuth, async (req, res) => {
         // console.log(user.id, 'user.id ===============')
         // spot = spot.toJSON()
         spot.previewImage = previewImage.url
-        console.log(previewImage, 'preview imageeeeeeee')
-        console.log(spot, 'spottttt ====================')
+        // console.log(previewImage, 'preview imageeeeeeee')
+        // console.log(spot, 'spottttt ====================')
         ele['User'] = user
         ele['Spot'] = spot
         ele['ReviewImages'] = reviewImages
         // ele['Spot']['previewImage'] = previewImage
-        
+        // console.log(emptyArr)
         emptyArr.push(ele)
     }
-    // console.log(reviewForCurrentUser, 'helooooooooooooo')
+    // console.log({Review: emptyArr}, 'helooooooooooooo')
     // reviewForCurrentUser.forEach(review => {
     //     console.log(review.toJSON().id)
     // })
-    return res.json({Review: emptyArr})
+
+    return res.json({Reviews: emptyArr})
 })
 
 //Edit a Review 
@@ -143,7 +144,14 @@ router.post('/:reviewId/images', async (req, res) => {
     }
     
     const addImageReview = await ReviewImage.create({ reviewId, url })
-
+    if(addImageReview.url > 10){
+        return res.status(403).json(
+            {
+            "message": "Maximum number of images for this resource was reached",
+            "statusCode": 403
+            }
+        )
+    }
     return res.json({'id': addImageReview.id, 'url': addImageReview.url})
 })
 
