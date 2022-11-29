@@ -398,11 +398,18 @@ router.get('/:spotId/reviews', async (req, res) => {
     // const {id} = req.user
     const { spotId } = req.params
 
-    // let existingSpot = await Review.findOne({
-    //     where: {spotId: Spot.id}
+    let existingSpot = await Review.findOne({
+        where: {spotId: spotId}
     
-    // })
-    // console.log(existingSpot, 'existing spot ======')
+    })
+    if(!existingSpot){
+        return res.status(404).json(
+            {
+                "message": "Spot couldn't be found",
+                "statusCode": 404
+            })
+    }
+    console.log(existingSpot, 'existing spot ======')
     
     const reviewsBySpotId = await Review.findAll(
         {
@@ -422,13 +429,7 @@ router.get('/:spotId/reviews', async (req, res) => {
             ]
         })
     
-    // if(reviewsBySpotId !== spotId){
-    //     return res.status(404).json(
-    //         {
-    //             "message": "Spot couldn't be found",
-    //             "statusCode": 404
-    //         })
-    // }
+    
     return res.json(reviewsBySpotId)
 })
 
@@ -455,7 +456,7 @@ router.post('/:spotId/reviews', requireAuth, async (req, res) => {
                 }
             })
     }
-    
+    console.log(review, 'review')
     const {spotId} = req.params
     const numSpotId = Number(spotId)
     // console.log(spotId,'spooooooooootIddddddd', typeof(spotId))
@@ -464,21 +465,21 @@ router.post('/:spotId/reviews', requireAuth, async (req, res) => {
     const userId = req.user.id
     // console.log(userId, 'iddddddddddddddddddddd')
    
-    // const existingReview = await Review.findOne({
-    //     where: {
-    //         spotId: spotId,
-    //         userId: id
-    //     }
-    // })
-    // console.log(existingReview, '===existing review ===')
+    const existingReview = await Review.findOne({
+        where: {
+            spotId: spotId,
+            userId: id
+        }
+    })
+    console.log(existingReview, '===existing review ===')
 
-    // if(existingReview){
-    //     return res.status(403).json(
-    //         {
-    //             "message": "User already has a review for this spot",
-    //             "statusCode": 403
-    //         })
-    // }
+    if(existingReview){
+        return res.status(403).json(
+            {
+                "message": "User already has a review for this spot",
+                "statusCode": 403
+            })
+    }
     const errorReviews = await Spot.findOne({raw: true,
         where: {
             id: req.params.spotId,
