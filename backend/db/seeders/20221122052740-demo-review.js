@@ -37,25 +37,25 @@ module.exports = {
     },
     {
       // id: 5,
-      userId: 5,
-      spotId: 5,
+      userId: 2,
+      spotId: 2,
       review: "This was a bad spot!",
       stars: 2
     },
-    {
-      // id: 6,
-      userId: 6,
-      spotId: 6,
-      review: "This was the best spot!",
-      stars: 5
-    },
-    {
-      // id: 7,
-      userId: 7,
-      spotId: 7,
-      review: "This was the worst spot!",
-      stars: 1
-    },
+    // {
+    //   // id: 6,
+    //   userId: 6,
+    //   spotId: 6,
+    //   review: "This was the best spot!",
+    //   stars: 5
+    // },
+    // {
+    //   // id: 7,
+    //   userId: 7,
+    //   spotId: 7,
+    //   review: "This was the worst spot!",
+    //   stars: 1
+    // },
    ])
   },
 
