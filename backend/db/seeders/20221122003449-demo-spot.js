@@ -50,7 +50,7 @@ module.exports = {
     },
 
     {
-      ownerId: 4,
+      ownerId: 1,
       address: "111 Third Lane",
       city: "City 4",
       state: "Florida",
